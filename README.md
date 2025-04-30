@@ -117,6 +117,8 @@ python -m venv venv
 source venv/bin/activate  # або .\venv\Scripts\activate на Windows
 pip install -r requirements.txt
 ```
+Aбо Ви можете скачати його із [Google Drive](https://drive.google.com/drive/folders/14rafyduzORg3LVkmVNgqekXYGW_6Fiy0?usp=sharing),
+адже через велику кількість файлів я не змогла завантажити його на GitHub.
 
 ## 🚀 Як користуватись
 
