@@ -1,13 +1,16 @@
+"""Python script to sign images with a private key and embed the signature in the image file."""
+import os
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from PIL import Image
-import os
 
 def load_private_key(path):
+    """Loads the private key from a file."""
     with open(path, "rb") as key_file:
         return serialization.load_pem_private_key(key_file.read(), password=None)
 
 def sign_data(private_key, data):
+    """Signs the given data using the private key."""
     signature = private_key.sign(
         data,
         padding.PSS(
@@ -19,6 +22,17 @@ def sign_data(private_key, data):
     return signature
 
 def embed_signature_in_image(image_path, signature, output_path):
+    """
+    Embeds a digital signature into an image using LSB (Least Significant Bit) in the red channel.
+    Args:
+        image_path (str): Path to the input image.
+        signature (bytes): Digital signature in bytes.
+        output_path (str): Path to save the signed image.
+    Note:
+        The signature is converted to bits and embedded into the least significant bits
+        of red pixels. Only lossless formats like PNG are supported; others may corrupt
+        the signature.
+    """
     img = Image.open(image_path)
     exif_data = img.info.get('exif')
 
@@ -45,8 +59,9 @@ def embed_signature_in_image(image_path, signature, output_path):
         img.save(output_path)
 
 def main():
+    """Main function to sign images."""
     if not os.path.exists("keys/private_key.pem"):
-        raise FileNotFoundError("Спочатку згенеруйте ключі через generate_keys.py!")
+        raise FileNotFoundError("Please generate keys first using generate_keys.py!")
 
     private_key = load_private_key("keys/private_key.pem")
 
@@ -56,7 +71,7 @@ def main():
     os.makedirs(output_folder, exist_ok=True)
 
     for filename in os.listdir(input_folder):
-        if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+        if filename.lower().endswith(('.png')):
             input_path = os.path.join(input_folder, filename)
             output_path = os.path.join(output_folder, filename)
 
@@ -65,7 +80,7 @@ def main():
 
             signature = sign_data(private_key, image_data)
             embed_signature_in_image(input_path, signature, output_path)
-            print(f"✅ Зображення {filename} підписано і збережено в {output_path}")
+            print(f"✅ Image {filename} has been signed and saved to {output_path}")
 
 if __name__ == "__main__":
     main()
