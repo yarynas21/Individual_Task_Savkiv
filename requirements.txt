@@ -1,2 +1,2 @@
-cryptography
-pillow
+cryptography==44.0.2
+Pillow==11.2.1
